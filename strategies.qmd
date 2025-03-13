@@ -1,0 +1,23 @@
+---
+title: "Strategies"
+format: 
+  html:
+    grid: 
+      body-width: 800px
+---
+
+If you're frustrated or outraged by the need to censor your work, you should be. This is so, so profoundly stupid 🤦. It's also a rather clear violation of the 1st Amendment of the U.S. Constitution.
+
+But look, the incompetents running these screenings aren't doing it by hand - they're just running documents through automated keyword searchers, just like this app. So until we have an administration that respects free speech, hopefully this tool can help you navigate working in this environment. 
+
+Once you run your document through the screener and find your matching keywords, just change them. Here are some strategies:
+
+- **Use synonyms**: Replace potentially flagged words with their synonyms (e.g., "inclusive" → "welcoming"). 
+- **Add extra letters**: Insert additional letters in words that don't change pronunciation (e.g., "divverse").
+- **Use numbers**: Replace letters with numbers, e.g. "o" with "0", capital "I" with "1".
+- **Intentional misspellings**: Slightly misspell words while keeping them recognizable (e.g., "equaty" or "ĕquity" using accented characters instead of "equity"). 
+- **Add invisible characters**: Insert zero-width spaces or other invisible Unicode characters between letters. 
+- **Compound splitting**: Break terms into component parts with hyphens or spaces (e.g., "social-justice" → "social fairness").
+- **Use circumlocution**: Describe the concept rather than using the term directly.
+- **Homophone substitution**: Use words that sound the same but are spelled differently.
+- **Use metaphors**: Replace direct terms with metaphorical language that conveys similar meaning.

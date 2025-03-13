@@ -1,0 +1,495 @@
+---
+format: 
+  html:
+    resources: 
+      - shinylive-sw.js
+filters:
+  - shinylive
+---
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+
+library(shiny)
+library(readtext)
+library(stringr)
+library(DT)
+library(bslib)
+library(shinyjs)  # Add shinyjs for JavaScript interactions
+
+# List of keywords
+keywords <- c("consumer", "accessible", "activism", "activists", "advocacy", "advocate", "advocates", "affirming care", "all-inclusive", "allyship", "anti-racism", "antiracist", "assigned at birth", "assigned female at birth", "assigned male at birth", "assigned male", "assigned remale", "at risk", "barrier", "barriers", "belong", "bias", "biased", "biased toward", "biases", "biases towards", "biologically female", "biologically male", "BIPOC", "Black", "breastfeed", "breastfeed + people", "breastfeed + person", "chestfeed", "chestfeed + people", "chestfeed + person", "clean energy", "climate crisis", "climate science", "commercial sex worker", "community diversity", "community equity", "confirmation bias", "cultural competence", "cultural differences", "cultural heritage", "cultural sensitivity", "culturally appropriate", "culturally responsive", "DEI", "DEIA", "DEIAB", "DEIJ", "disabilities", "disability", "discriminated", "discrimination", "discriminatory", "disparity", "diverse", "diverse backgrounds", "diverse communities", "diverse community", "diverse group", "diverse groups", "diversified", "diversify", "diversifying", "diversity", "enhance the diversity", "enhancing diversity", "environmental quality", "equal opportunity", "equality", "equitable", "equitableness", "equity", "ethnicity", "excluded", "exclusion", "expression", "female", "females", "feminism", "fostering inclusivity", "GBV", "gender", "gender based", "gender based violence", "gender diversity", "gender identity", "gender ideology", "gender-affirming care", "genders", "Gulf of Mexico", "hate speech", "health disparity", "health equity", "hispanic minority", "historically", "identity", "immigrants", "implicit bias", "implicit biases", "inclusion", "inclusive", "inclusive leadership", "inclusiveness", "inclusivity", "increase diversity", "increase the diversity", "indigenous community", "inequalities", "inequality", "inequitable", "inequities", "inequity", "injustice", "institutional", "intersectional", "intersectionality", "key groups", "key people", "key populations", "Latinx", "LGBT", "LGBTQ", "marginalize", "marginalized", "men who have sex with men", "mental health", "minorities", "minority", "most risk", "MSM", "multicultural", "Mx", "Native American", "non-binary", "nonbinary", "oppression", "oppressive", "orientation", "uterus", "people + uterus", "people-centered care", "person-centered", "person-centered care", "polarization", "political", "pollution", "pregnant people", "pregnant person", "pregnant persons", "prejudice", "privilege", "privileges", "promote diversity", "promoting diversity", "pronoun", "pronouns", "prostitute", "race", "race and ethnicity", "racial", "racial diversity", "racial identity", "racial inequality", "racial justice", "racially", "racism", "segregation", "sense of belonging", "sex", "sexual preferences", "sexuality", "social justice", "sociocultural", "socioeconomic", "status", "stereotype", "stereotypes", "systemic", "systemically", "they/them", "trans", "transgender", "transsexual", "trauma", "traumatic", "tribal", "unconscious bias", "underappreciated", "underprivileged", "underrepresentation", "underrepresented", "underserved", "undervalued", "victim", "victims", "vulnerable populations", "women", "women and underrepresented"
+)
+
+# Custom JS for PDF handling - optimized for automatic analysis
+js_code <- "
+// Function to handle PDF extraction using PDF.js
+function extractPdfText(fileInput) {
+  const file = fileInput.files[0];
+  if (!file || file.type !== 'application/pdf') {
+    return;
+  }
+  
+  // Create a URL for the file
+  const fileURL = URL.createObjectURL(file);
+  
+  // Set loading state immediately
+  Shiny.setInputValue('pdf_loading', true);
+  
+  // Load PDF.js from CDN if not already loaded
+  if (typeof pdfjsLib === 'undefined') {
+    // Set worker source (required for PDF.js)
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.onload = function() {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      processPdf(fileURL);
+    };
+    document.head.appendChild(script);
+  } else {
+    processPdf(fileURL);
+  }
+  
+  // Function to process the PDF
+  function processPdf(url) {
+    pdfjsLib.getDocument(url).promise.then(function(pdf) {
+      let textContent = '';
+      let pendingPages = pdf.numPages;
+      
+      // Update progress in UI with total pages info
+      Shiny.setInputValue('pdf_progress', { current: 0, total: pendingPages });
+      
+      // Extract text from each page
+      for (let i = 1; i <= pdf.numPages; i++) {
+        pdf.getPage(i).then(function(page) {
+          page.getTextContent().then(function(content) {
+            const strings = content.items.map(item => item.str);
+            textContent += strings.join(' ') + '\\n';
+            
+            // Update progress
+            Shiny.setInputValue('pdf_progress', { 
+              current: pdf.numPages - pendingPages + 1, 
+              total: pdf.numPages 
+            });
+            
+            // Check if all pages are processed
+            pendingPages--;
+            if (pendingPages === 0) {
+              // Send the extracted text back to Shiny
+              Shiny.setInputValue('pdf_text', textContent);
+              Shiny.setInputValue('pdf_loading', false);
+              
+              // Clean up
+              URL.revokeObjectURL(url);
+            }
+          });
+        });
+      }
+    }).catch(function(error) {
+      console.error('Error loading PDF:', error);
+      Shiny.setInputValue('pdf_error', error.message);
+      Shiny.setInputValue('pdf_loading', false);
+      URL.revokeObjectURL(url);
+    });
+  }
+}
+
+// Initialize PDF handling when document input changes
+$(document).on('change', '#document', function(e) {
+  // Clear previous values 
+  Shiny.setInputValue('pdf_error', null);
+  Shiny.setInputValue('pdf_text', null);
+  
+  const file = this.files[0];
+  if (file && file.type === 'application/pdf') {
+    // For PDFs, extract text using PDF.js
+    extractPdfText(this);
+  } else {
+    // For non-PDFs, ensure pdf_loading is false so analysis can proceed
+    Shiny.setInputValue('pdf_loading', false);
+  }
+});
+"
+
+ui <- page_sidebar(
+  # Removed title for embedding in Quarto
+  theme = bs_theme(
+    bootswatch = "flatly",
+    primary = "#2c3e50",
+    "navbar-bg" = "#2c3e50"
+  ),
+  
+  # Include shinyjs
+  shinyjs::useShinyjs(),
+  
+  # Include custom JavaScript and CSS for better Quarto embedding
+  tags$head(
+    tags$script(HTML(js_code)),
+    tags$style(HTML("
+      /* Styles optimized for Quarto embedding */
+      .document-info {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: monospace;
+      }
+      
+      .card-header {
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+      
+      /* Make the table more compact and readable */
+      .dataTables_wrapper {
+        padding: 10px;
+      }
+      
+      /* Add some padding to sidebar */
+      .sidebar {
+        padding-top: 15px;
+      }
+      
+      /* Reduce overall padding for embedded context */
+      .container-fluid {
+        padding: 0 !important;
+      }
+      
+      /* Better fit in Quarto layout */
+      .page-sidebar > .container-fluid > .row {
+        margin: 0 !important;
+      }
+      
+      /* Hide unnecessary elements in embedded context */
+      .page-sidebar > .container-fluid > .row > .col:empty {
+        display: none;
+      }
+    "))
+  ),
+  
+  sidebar = sidebar(
+    fileInput("document", "Upload Document", 
+             accept = c(".docx", ".doc", ".pdf", ".txt", ".csv", ".html", 
+                        ".htm", ".rtf", ".xml", ".json")),
+    
+    # PDF processing status (conditionally shown)
+    conditionalPanel(
+      condition = "input.pdf_loading == true",
+      div(
+        class = "alert alert-info",
+        "Processing PDF... This may take a moment.",
+        tags$div(
+          class = "progress mt-2",
+          tags$div(
+            id = "pdf-progress-bar",
+            class = "progress-bar progress-bar-striped progress-bar-animated",
+            role = "progressbar",
+            style = "width: 0%"
+          )
+        )
+      )
+    ),
+    
+    # Removed analyze button - analysis happens automatically
+    
+    hr(),
+    
+    tags$p("Supported formats: Word (.docx, .doc), PDF, Text, CSV, HTML, XML, JSON, RTF"),
+    tags$p(class = "text-muted", "Documents will be analyzed automatically upon upload.")
+  ),
+  
+  # Main panel with simplified results
+  card(
+    card_header("Analysis Results"),
+    htmlOutput("status_message"),
+    
+    # Document information section
+    conditionalPanel(
+      condition = "output.document_analyzed == true",
+      # Document basic info with better styling
+      card(
+        card_header("Document Information"),
+        div(
+          class = "document-info",
+          verbatimTextOutput("document_info")
+        )
+      ),
+      
+      # Keywords table
+      card(
+        card_header("Keywords Found"),
+        DT::dataTableOutput("keyword_table")
+      )
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  
+  # JavaScript to update progress bar
+  observe({
+    if (!is.null(input$pdf_progress)) {
+      progress <- input$pdf_progress
+      percentage <- round((progress$current / progress$total) * 100)
+      shinyjs::runjs(sprintf(
+        "$('#pdf-progress-bar').css('width', '%s%%').attr('aria-valuenow', %s)",
+        percentage, percentage
+      ))
+    }
+  })
+  
+  # Reactive values to store analysis results
+  results <- reactiveVal(NULL)
+  
+  # Store PDF text when it becomes available
+  pdf_text <- reactiveVal(NULL)
+  observe({
+    if (!is.null(input$pdf_text)) {
+      pdf_text(input$pdf_text)
+    }
+  })
+  
+  # Output indicator for whether document has been analyzed
+  output$document_analyzed <- reactive({
+    !is.null(results())
+  })
+  outputOptions(output, "document_analyzed", suspendWhenHidden = FALSE)
+  
+  # Status message - updated for automatic analysis
+  output$status_message <- renderUI({
+    if (!is.null(input$pdf_error)) {
+      return(div(class = "alert alert-danger", 
+                 "PDF Error: ", input$pdf_error))
+    }
+    
+    if (!is.null(input$pdf_loading) && input$pdf_loading) {
+      return(div(class = "alert alert-info", 
+                 "Processing PDF... Please wait."))
+    }
+    
+    if (is.null(results())) {
+      if (is.null(input$document)) {
+        return(div(class = "alert alert-info", 
+                   "Please upload a document to begin analysis."))
+      } else {
+        return(div(class = "alert alert-info", 
+                   "Document uploaded. Analysis starting..."))
+      }
+    } else if (!is.null(results()$error)) {
+      return(div(class = "alert alert-danger", 
+                 "Error: ", results()$error))
+    } else {
+      return(div(class = "alert alert-success", 
+                 "Analysis complete!"))
+    }
+  })
+  
+  # Function to extract text from document
+  extract_text <- function(file_path) {
+    # Check if we have PDF text from JavaScript
+    if (!is.null(input$document) && 
+        tolower(tools::file_ext(input$document$name)) == "pdf" && 
+        !is.null(pdf_text())) {
+      return(pdf_text())
+    }
+    
+    tryCatch({
+      # Use readtext for most document formats
+      text_data <- readtext::readtext(file_path)
+      return(text_data$text)
+    }, error = function(e) {
+      # If readtext fails, try simple text reading methods
+      file_ext <- tolower(tools::file_ext(file_path))
+      
+      if (file_ext == "txt") {
+        # For text files
+        tryCatch({
+          text <- readLines(file_path, warn = FALSE)
+          return(paste(text, collapse = "\n"))
+        }, error = function(e2) {
+          # Continue to the warning
+        })
+      } else if (file_ext == "csv") {
+        # For CSV files
+        tryCatch({
+          df <- read.csv(file_path, stringsAsFactors = FALSE)
+          text <- capture.output(print(df))
+          return(paste(text, collapse = "\n"))
+        }, error = function(e2) {
+          # Continue to the warning
+        })
+      } else if (file_ext %in% c("html", "htm")) {
+        # For HTML files - simplified approach
+        tryCatch({
+          html_content <- readLines(file_path, warn = FALSE)
+          return(paste(html_content, collapse = "\n"))
+        }, error = function(e2) {
+          # Continue to the warning
+        })
+      }
+      
+      # If all else fails
+      warning(paste("Error extracting text from document:", e$message))
+      return("")
+    })
+  }
+  
+  # Function to find keywords in text
+  find_keywords <- function(text, keywords) {
+    text_lower <- tolower(text)
+    found_keywords <- character(0)
+    keyword_counts <- numeric(0)
+    
+    for (keyword in keywords) {
+      # Use word boundaries to match whole words
+      pattern <- paste0("\\b", tolower(keyword), "\\b")
+      matches <- str_count(text_lower, pattern)
+      
+      if (matches > 0) {
+        found_keywords <- c(found_keywords, keyword)
+        keyword_counts <- c(keyword_counts, matches)
+      }
+    }
+    
+    # Create a named vector of counts
+    names(keyword_counts) <- found_keywords
+    
+    return(list(
+      keywords = found_keywords,
+      counts = keyword_counts
+    ))
+  }
+  
+  # Auto-analyze when document is uploaded or PDF text is processed
+  observe({
+    # Trigger on document upload or PDF text processing completion
+    if (is.null(input$document)) {
+      return()  # No document uploaded yet
+    }
+    
+    # For PDFs, only analyze after PDF.js has finished processing
+    file_type <- tolower(tools::file_ext(input$document$name))
+    if (file_type == "pdf") {
+      if (is.null(input$pdf_loading) || input$pdf_loading) {
+        # Still loading PDF or haven't started loading yet
+        return()
+      }
+      
+      if (!is.null(input$pdf_error)) {
+        results(list(error = paste("PDF Error:", input$pdf_error)))
+        return()
+      }
+    }
+    
+    # Extract document info
+    doc_path <- input$document$datapath
+    doc_name <- input$document$name
+    
+    # Extract text from document
+    text <- extract_text(doc_path)
+    
+    if (text == "") {
+      results(list(error = "Failed to extract text from the document. The file format may not be fully supported."))
+      return()
+    }
+    
+    # Find keywords in the text
+    keyword_results <- find_keywords(text, keywords)
+    
+    # Calculate word and character counts
+    words <- unlist(strsplit(text, "\\s+"))
+    words <- words[words != ""] # Remove empty strings
+    
+    # Store the results
+    results(list(
+      document_name = doc_name,
+      file_type = file_type,
+      text = text,
+      total_words = length(words),
+      total_chars = nchar(text),
+      keywords_found = keyword_results$keywords,
+      keyword_counts = keyword_results$counts,
+      error = NULL
+    ))
+  })
+  
+  # Reset PDF text when new file is uploaded
+  observeEvent(input$document, {
+    pdf_text(NULL)
+    # Also reset results when a new file is uploaded
+    results(NULL)
+  })
+  
+  # Output: Document info - simplified to just the basics
+  output$document_info <- renderText({
+    if (is.null(results())) return("")
+    
+    paste0(
+      "File Name: ", results()$document_name, "\n",
+      "File Type: ", toupper(results()$file_type), "\n",
+      "Analysis Date: ", format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+    )
+  })
+  
+  # Removed the total words, characters, and keywords outputs as they're no longer needed
+  
+  # Output: Enhanced keyword table
+  output$keyword_table <- DT::renderDataTable({
+    if (is.null(results())) return(NULL)
+    
+    if (length(results()$keywords_found) > 0) {
+      df <- data.frame(
+        Keyword = results()$keywords_found,
+        Occurrences = results()$keyword_counts,
+        stringsAsFactors = FALSE
+      )
+      
+      # Sort by number of occurrences (descending)
+      df <- df[order(-df$Occurrences), ]
+      
+      # Add summary row at the bottom
+      total_keywords <- sum(df$Occurrences)
+      unique_keywords <- nrow(df)
+      
+      DT::datatable(
+        df,
+        options = list(
+          pageLength = 15,
+          order = list(list(1, 'desc')),
+          dom = 'tip',  # table, information, and pagination (no search)
+          language = list(
+            info = paste0('Found ', total_keywords, ' occurrences of ', 
+                         unique_keywords, ' unique keywords')
+          )
+        ),
+        caption = htmltools::tags$caption(
+          style = 'caption-side: top; text-align: left; font-weight: bold; font-size: 16px;',
+          paste('Keywords Found:', total_keywords, 'occurrences of', unique_keywords, 'unique keywords')
+        ),
+        rownames = FALSE
+      ) %>%
+        DT::formatStyle(
+          'Keyword',
+          fontWeight = 'bold'
+        ) %>%
+        DT::formatStyle(
+          'Occurrences',
+          background = DT::styleColorBar(range(df$Occurrences), '#9ecae1'),
+          fontWeight = 'bold'
+        )
+    } else {
+      DT::datatable(
+        data.frame(
+          Message = c("No keywords from our list were found in the document."),
+          stringsAsFactors = FALSE
+        ),
+        options = list(dom = 't'),  # table only (no search, pagination, etc.)
+        rownames = FALSE
+      )
+    }
+  })
+}
+
+# Run the application
+shinyApp(ui = ui, server = server)
+```
