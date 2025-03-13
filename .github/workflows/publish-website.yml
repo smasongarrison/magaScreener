@@ -5,10 +5,10 @@ on:
       types: [published]
   workflow_dispatch: {}
 
-name: demo-website
+name: publish-website
 
 jobs:
-  demo-website:
+  publish-website:
     runs-on: ubuntu-latest
     # Only restrict concurrency for non-PR jobs
     concurrency:
