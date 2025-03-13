@@ -31,5 +31,9 @@ The analyzer searches for the following keywords:
 #| echo: false
 
 keywords <- read.csv('keywords.csv', header = TRUE, stringsAsFactors = FALSE)
-pander::pandoc.list(keywords$word, style = 'bullet')
+DT::datatable(
+  keywords,
+  rownames = FALSE, 
+  options = list(pageLength = 50)  # Set default to display 50 rows
+)
 ```

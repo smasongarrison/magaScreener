@@ -5,7 +5,7 @@ format:
     page-layout: article
 ---
 
-If you're frustrated or outraged by the need to censor your work, you should be. This is so, so profoundly stupid 🤦. It's also a rather clear violation of the 1st Amendment of the U.S. Constitution.
+If you're frustrated / outraged by the need to censor your work, you should be. This is so, so profoundly stupid 🤦. It's also a rather clear violation of the 1st Amendment of the U.S. Constitution.
 
 But look, the incompetents running these screenings aren't doing it by hand - they're just running documents through automated keyword searchers, just like this app. So until we have an administration that respects free speech, hopefully this tool can help you navigate working in this environment. 
 
