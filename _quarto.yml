@@ -18,6 +18,9 @@ website:
         file: about.qmd
       - text: "Strategies"
         file: strategies.qmd
+    right: 
+      - icon: github
+        href: https://github.com/jhelvy/magaScreener
   page-footer:
     center:
       - text: "Site made with <a href='https://github.com/jhelvy/jhelvy_quarto' target='_blank'><i class='bi bi-git'></i></a>, <a href='https://quarto.org/' target='_blank'><img src='https://quarto.org/favicon.png' width=12> quarto</a>, and rage"

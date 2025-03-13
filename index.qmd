@@ -7,6 +7,10 @@ filters:
   - shinylive
 ---
 
+<center>
+(this can take a bit of time to load)
+</center>
+
 ```{shinylive-r}
 #| standalone: true
 #| viewerHeight: 800
