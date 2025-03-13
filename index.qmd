@@ -22,7 +22,7 @@ library(shinyjs)  # Add shinyjs for JavaScript interactions
 keywords <- c("consumer", "accessible", "activism", "activists", "advocacy", "advocate", "advocates", "affirming care", "all-inclusive", "allyship", "anti-racism", "antiracist", "assigned at birth", "assigned female at birth", "assigned male at birth", "assigned male", "assigned remale", "at risk", "barrier", "barriers", "belong", "bias", "biased", "biased toward", "biases", "biases towards", "biologically female", "biologically male", "BIPOC", "Black", "breastfeed", "breastfeed + people", "breastfeed + person", "chestfeed", "chestfeed + people", "chestfeed + person", "clean energy", "climate crisis", "climate science", "commercial sex worker", "community diversity", "community equity", "confirmation bias", "cultural competence", "cultural differences", "cultural heritage", "cultural sensitivity", "culturally appropriate", "culturally responsive", "DEI", "DEIA", "DEIAB", "DEIJ", "disabilities", "disability", "discriminated", "discrimination", "discriminatory", "disparity", "diverse", "diverse backgrounds", "diverse communities", "diverse community", "diverse group", "diverse groups", "diversified", "diversify", "diversifying", "diversity", "enhance the diversity", "enhancing diversity", "environmental quality", "equal opportunity", "equality", "equitable", "equitableness", "equity", "ethnicity", "excluded", "exclusion", "expression", "female", "females", "feminism", "fostering inclusivity", "GBV", "gender", "gender based", "gender based violence", "gender diversity", "gender identity", "gender ideology", "gender-affirming care", "genders", "Gulf of Mexico", "hate speech", "health disparity", "health equity", "hispanic minority", "historically", "identity", "immigrants", "implicit bias", "implicit biases", "inclusion", "inclusive", "inclusive leadership", "inclusiveness", "inclusivity", "increase diversity", "increase the diversity", "indigenous community", "inequalities", "inequality", "inequitable", "inequities", "inequity", "injustice", "institutional", "intersectional", "intersectionality", "key groups", "key people", "key populations", "Latinx", "LGBT", "LGBTQ", "marginalize", "marginalized", "men who have sex with men", "mental health", "minorities", "minority", "most risk", "MSM", "multicultural", "Mx", "Native American", "non-binary", "nonbinary", "oppression", "oppressive", "orientation", "uterus", "people + uterus", "people-centered care", "person-centered", "person-centered care", "polarization", "political", "pollution", "pregnant people", "pregnant person", "pregnant persons", "prejudice", "privilege", "privileges", "promote diversity", "promoting diversity", "pronoun", "pronouns", "prostitute", "race", "race and ethnicity", "racial", "racial diversity", "racial identity", "racial inequality", "racial justice", "racially", "racism", "segregation", "sense of belonging", "sex", "sexual preferences", "sexuality", "social justice", "sociocultural", "socioeconomic", "status", "stereotype", "stereotypes", "systemic", "systemically", "they/them", "trans", "transgender", "transsexual", "trauma", "traumatic", "tribal", "unconscious bias", "underappreciated", "underprivileged", "underrepresentation", "underrepresented", "underserved", "undervalued", "victim", "victims", "vulnerable populations", "women", "women and underrepresented"
 )
 
-# Custom JS for PDF handling - optimized for automatic analysis
+# Custom JS for PDF handling - optimized for analysis with explicit button trigger
 js_code <- "
 // Function to handle PDF extraction using PDF.js
 function extractPdfText(fileInput) {
@@ -112,8 +112,8 @@ $(document).on('change', '#document', function(e) {
 });
 "
 
-ui <- page_sidebar(
-  # Removed title for embedding in Quarto
+ui <- page_fluid(
+  # Theme with simplified layout
   theme = bs_theme(
     bootswatch = "flatly",
     primary = "#2c3e50",
@@ -123,102 +123,143 @@ ui <- page_sidebar(
   # Include shinyjs
   shinyjs::useShinyjs(),
   
-  # Include custom JavaScript and CSS for better Quarto embedding
+  # Include custom JavaScript and CSS for better layout
   tags$head(
     tags$script(HTML(js_code)),
     tags$style(HTML("
-      /* Styles optimized for Quarto embedding */
+      /* Simplified styles with no nested cards */
+      body {
+        padding: 15px;
+      }
+      
       .document-info {
         background-color: #f8f9fa;
         padding: 15px;
         border-radius: 5px;
         font-family: monospace;
+        margin-bottom: 20px;
       }
       
-      .card-header {
+      .section-header {
         font-weight: bold;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #e9ecef;
       }
       
       /* Make the table more compact and readable */
       .dataTables_wrapper {
-        padding: 10px;
+        padding: 10px 0;
       }
       
-      /* Add some padding to sidebar */
-      .sidebar {
-        padding-top: 15px;
+      /* Snarky message styling */
+      .snarky-message {
+        font-size: 1.1rem;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 5px;
+        font-weight: bold;
       }
       
-      /* Reduce overall padding for embedded context */
-      .container-fluid {
-        padding: 0 !important;
+      .snarky-warning {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
       }
       
-      /* Better fit in Quarto layout */
-      .page-sidebar > .container-fluid > .row {
-        margin: 0 !important;
+      .snarky-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
       }
       
-      /* Hide unnecessary elements in embedded context */
-      .page-sidebar > .container-fluid > .row > .col:empty {
-        display: none;
+      /* Button styling */
+      .action-button {
+        margin-top: 10px;
+      }
+      
+      /* Layout adjustments */
+      .col-sm-4 {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+      }
+      
+      /* Add space between columns */
+      .col-sm-8 {
+        padding-left: 30px;
       }
     "))
   ),
   
-  sidebar = sidebar(
-    fileInput("document", "Upload Document", 
-             accept = c(".docx", ".doc", ".pdf", ".txt", ".csv", ".html", 
-                        ".htm", ".rtf", ".xml", ".json")),
-    
-    # PDF processing status (conditionally shown)
-    conditionalPanel(
-      condition = "input.pdf_loading == true",
-      div(
-        class = "alert alert-info",
-        "Processing PDF... This may take a moment.",
-        tags$div(
-          class = "progress mt-2",
-          tags$div(
-            id = "pdf-progress-bar",
-            class = "progress-bar progress-bar-striped progress-bar-animated",
-            role = "progressbar",
-            style = "width: 0%"
-          )
-        )
-      )
-    ),
-    
-    # Removed analyze button - analysis happens automatically
-    
-    hr(),
-    
-    tags$p("Supported formats: Word (.docx, .doc), PDF, Text, CSV, HTML, XML, JSON, RTF"),
-    tags$p(class = "text-muted", "Documents will be analyzed automatically upon upload.")
-  ),
-  
-  # Main panel with simplified results
-  card(
-    card_header("Analysis Results"),
-    htmlOutput("status_message"),
-    
-    # Document information section
-    conditionalPanel(
-      condition = "output.document_analyzed == true",
-      # Document basic info with better styling
-      card(
-        card_header("Document Information"),
+  # Layout with sidebar and main content in a fluidRow
+  fluidRow(
+    # Sidebar panel
+    column(
+      width = 4,
+      h4("Document Upload", class = "mb-3"),
+      fileInput("document", "Choose Document", 
+                accept = c(".docx", ".doc", ".pdf", ".txt", ".csv", ".html", 
+                           ".htm", ".rtf", ".xml", ".json")),
+      
+      # PDF processing status (conditionally shown)
+      conditionalPanel(
+        condition = "input.pdf_loading == true",
         div(
-          class = "document-info",
-          verbatimTextOutput("document_info")
+          class = "alert alert-info",
+          "Processing PDF... This may take a moment.",
+          tags$div(
+            class = "progress mt-2",
+            tags$div(
+              id = "pdf-progress-bar",
+              class = "progress-bar progress-bar-striped progress-bar-animated",
+              role = "progressbar",
+              style = "width: 0%"
+            )
+          )
         )
       ),
       
-      # Keywords table
-      card(
-        card_header("Keywords Found"),
-        DT::dataTableOutput("keyword_table")
+      # Added analyze button for manual analysis triggering
+      actionButton("analyze_btn", "Analyze Document", 
+                   class = "btn-primary btn-block mt-3"),
+      
+      hr(),
+      
+      tags$p("Supported formats: Word (.docx, .doc), PDF, Text, CSV, HTML, XML, JSON, RTF"),
+      tags$p(class = "text-muted", "Click 'Analyze Document' after uploading to begin analysis.")
+    ),
+    
+    # Main content
+    column(
+      width = 8,
+      # Status message
+      uiOutput("status_message"),
+      
+      # Document information section
+      conditionalPanel(
+        condition = "output.document_analyzed == true",
+        
+        h3("Analysis Results", class = "section-header"),
+        
+        # Document basic info with better styling
+        h4("Document Information", class = "section-header"),
+        div(
+          class = "document-info",
+          verbatimTextOutput("document_info")
+        ),
+        
+        # Snarky message output
+        htmlOutput("snarky_message"),
+        
+        # Keywords table - only shown if keywords are found
+        conditionalPanel(
+          condition = "output.has_keywords == true",
+          h4("Keywords Found", class = "section-header"),
+          DT::dataTableOutput("keyword_table")
+        )
       )
     )
   )
@@ -255,7 +296,13 @@ server <- function(input, output, session) {
   })
   outputOptions(output, "document_analyzed", suspendWhenHidden = FALSE)
   
-  # Status message - updated for automatic analysis
+  # Output indicator for whether keywords were found
+  output$has_keywords <- reactive({
+    !is.null(results()) && length(results()$keywords_found) > 0
+  })
+  outputOptions(output, "has_keywords", suspendWhenHidden = FALSE)
+  
+  # Status message - updated for button-triggered analysis
   output$status_message <- renderUI({
     if (!is.null(input$pdf_error)) {
       return(div(class = "alert alert-danger", 
@@ -270,10 +317,10 @@ server <- function(input, output, session) {
     if (is.null(results())) {
       if (is.null(input$document)) {
         return(div(class = "alert alert-info", 
-                   "Please upload a document to begin analysis."))
+                   "Please upload a document and click 'Analyze Document' to begin."))
       } else {
         return(div(class = "alert alert-info", 
-                   "Document uploaded. Analysis starting..."))
+                   "Document uploaded. Click 'Analyze Document' to begin analysis."))
       }
     } else if (!is.null(results()$error)) {
       return(div(class = "alert alert-danger", 
@@ -360,30 +407,30 @@ server <- function(input, output, session) {
     ))
   }
   
-  # Auto-analyze when document is uploaded or PDF text is processed
-  observe({
-    # Trigger on document upload or PDF text processing completion
+  # Analyze document when button is clicked
+  observeEvent(input$analyze_btn, {
+    # Ensure a document is uploaded
     if (is.null(input$document)) {
-      return()  # No document uploaded yet
+      results(list(error = "Please upload a document first."))
+      return()
     }
     
-    # For PDFs, only analyze after PDF.js has finished processing
-    file_type <- tolower(tools::file_ext(input$document$name))
-    if (file_type == "pdf") {
-      if (is.null(input$pdf_loading) || input$pdf_loading) {
-        # Still loading PDF or haven't started loading yet
-        return()
-      }
-      
-      if (!is.null(input$pdf_error)) {
-        results(list(error = paste("PDF Error:", input$pdf_error)))
-        return()
-      }
+    # Check if PDF is still loading
+    if (!is.null(input$pdf_loading) && input$pdf_loading) {
+      results(list(error = "PDF is still processing. Please wait."))
+      return()
+    }
+    
+    # Check for PDF errors
+    if (!is.null(input$pdf_error)) {
+      results(list(error = paste("PDF Error:", input$pdf_error)))
+      return()
     }
     
     # Extract document info
     doc_path <- input$document$datapath
     doc_name <- input$document$name
+    file_type <- tolower(tools::file_ext(doc_name))
     
     # Extract text from document
     text <- extract_text(doc_path)
@@ -416,8 +463,8 @@ server <- function(input, output, session) {
   # Reset PDF text when new file is uploaded
   observeEvent(input$document, {
     pdf_text(NULL)
-    # Also reset results when a new file is uploaded
-    results(NULL)
+    # Do NOT reset results automatically when a new file is uploaded
+    # This allows users to explicitly trigger analysis with the button
   })
   
   # Output: Document info - simplified to just the basics
@@ -431,62 +478,83 @@ server <- function(input, output, session) {
     )
   })
   
-  # Removed the total words, characters, and keywords outputs as they're no longer needed
+  # Snarky messages - choose randomly from a set for each case
+  output$snarky_message <- renderUI({
+    if (is.null(results())) return(NULL)
+    
+  # Snarky messages for when keywords are found
+    warning_messages <- c(
+      "Uh oh, looks like your document has some words on the naughty list - no first amendment rights for you!",
+      "ALERT! Your document contains language that may cause conservative fainting spells!",
+      "WARNING: Potentially woke content detected! Hide your children!",
+      "Potentially woke language detected! Your document might cause pearl-clutching!",
+      "Snowflake trigger warning: Your document contains words that might make Tucker Carlson cry!"
+    )
+    
+    # Snarky messages for when no keywords are found
+    success_messages <- c(
+      "Congratulations! Your document is free of scary words like \"gender\" that trigger the MAGA mind.",
+      "Good news! Nothing in your document will upset Fox News viewers!",
+      "You're safe! No words that might cause conservative heart palpitations detected.",
+      "Document approved for Florida schools! No scary inclusive language found!", 
+      "Phew! Your document is officially woke-free!"
+    )
+    
+    if (length(results()$keywords_found) > 0) {
+      # Keywords found - show warning message
+      total_keywords <- sum(results()$keyword_counts)
+      unique_keywords <- length(results()$keywords_found)
+      
+      div(
+        class = "snarky-message snarky-warning",
+        sample(warning_messages, 1),
+        tags$br(),
+        tags$span(
+          style = "font-size: 0.9rem; font-weight: normal;",
+          paste0("Found ", total_keywords, " occurrences of ", 
+                unique_keywords, " unique keywords")
+        )
+      )
+    } else {
+      # No keywords found - show success message
+      div(
+        class = "snarky-message snarky-success",
+        sample(success_messages, 1)
+      )
+    }
+  })
   
   # Output: Enhanced keyword table
   output$keyword_table <- DT::renderDataTable({
-    if (is.null(results())) return(NULL)
+    if (is.null(results()) || length(results()$keywords_found) == 0) return(NULL)
     
-    if (length(results()$keywords_found) > 0) {
-      df <- data.frame(
-        Keyword = results()$keywords_found,
-        Occurrences = results()$keyword_counts,
-        stringsAsFactors = FALSE
-      )
-      
-      # Sort by number of occurrences (descending)
-      df <- df[order(-df$Occurrences), ]
-      
-      # Add summary row at the bottom
-      total_keywords <- sum(df$Occurrences)
-      unique_keywords <- nrow(df)
-      
-      DT::datatable(
-        df,
-        options = list(
-          pageLength = 15,
-          order = list(list(1, 'desc')),
-          dom = 'tip',  # table, information, and pagination (no search)
-          language = list(
-            info = paste0('Found ', total_keywords, ' occurrences of ', 
-                         unique_keywords, ' unique keywords')
-          )
-        ),
-        caption = htmltools::tags$caption(
-          style = 'caption-side: top; text-align: left; font-weight: bold; font-size: 16px;',
-          paste('Keywords Found:', total_keywords, 'occurrences of', unique_keywords, 'unique keywords')
-        ),
-        rownames = FALSE
+    df <- data.frame(
+      Keyword = results()$keywords_found,
+      Occurrences = results()$keyword_counts,
+      stringsAsFactors = FALSE
+    )
+    
+    # Sort by number of occurrences (descending)
+    df <- df[order(-df$Occurrences), ]
+    
+    DT::datatable(
+      df,
+      options = list(
+        pageLength = 15,
+        order = list(list(1, 'desc')),
+        dom = 'tip'  # table, information, and pagination (no search)
+      ),
+      rownames = FALSE
+    ) %>%
+      DT::formatStyle(
+        'Keyword',
+        fontWeight = 'bold'
       ) %>%
-        DT::formatStyle(
-          'Keyword',
-          fontWeight = 'bold'
-        ) %>%
-        DT::formatStyle(
-          'Occurrences',
-          background = DT::styleColorBar(range(df$Occurrences), '#9ecae1'),
-          fontWeight = 'bold'
-        )
-    } else {
-      DT::datatable(
-        data.frame(
-          Message = c("No keywords from our list were found in the document."),
-          stringsAsFactors = FALSE
-        ),
-        options = list(dom = 't'),  # table only (no search, pagination, etc.)
-        rownames = FALSE
+      DT::formatStyle(
+        'Occurrences',
+        background = DT::styleColorBar(range(df$Occurrences), '#9ecae1'),
+        fontWeight = 'bold'
       )
-    }
   })
 }
 

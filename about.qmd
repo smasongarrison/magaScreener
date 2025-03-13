@@ -2,8 +2,7 @@
 title: "About"
 format: 
   html:
-    grid: 
-      body-width: 800px
+    page-layout: article
 ---
 
 This tool allows you to analyze documents for specific MAGA-targeted keywords. Upload a document, and the app will count words, characters, and occurrences of predetermined keywords.

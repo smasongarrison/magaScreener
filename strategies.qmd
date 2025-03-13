@@ -2,8 +2,7 @@
 title: "Strategies"
 format: 
   html:
-    grid: 
-      body-width: 800px
+    page-layout: article
 ---
 
 If you're frustrated or outraged by the need to censor your work, you should be. This is so, so profoundly stupid 🤦. It's also a rather clear violation of the 1st Amendment of the U.S. Constitution.
