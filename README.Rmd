@@ -1,0 +1,42 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse   = TRUE,
+  warning    = FALSE,
+  message    = FALSE,
+  comment    = "#>",
+  fig.path   = "man/figures/",
+  fig.retina = 3
+)
+```
+
+## Source code for the [MAGA Keyword Screener](https://jhelvy.github.io/magaScreener/) app
+
+This tool allows you to analyze documents for specific MAGA-targeted keywords. It is intended to be used to help identify words that might get screened by the federal government, e.g. in a grant proposal for federal funding. Upload a document, and the app will count words, characters, and occurrences of predetermined keywords.
+
+Here's a quick visual demo:
+
+<center>
+<img src="demo.gif" width=600>
+</center>
+
+```{r child="description.Rmd"}
+```
+
+### Keywords List
+
+The analyzer searches for the following keywords:
+
+```{r}
+#| results: asis
+#| echo: false
+
+keywords <- read.csv('keywords.csv', header = TRUE, stringsAsFactors = FALSE)
+names(keywords) <- ''
+kableExtra::kbl(keywords, format = 'markdown')
+```

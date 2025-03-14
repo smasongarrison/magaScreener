@@ -1,10 +1,18 @@
 project:
   type: website
   output-dir: _site
+  preview:
+    browser: true
+  render:
+    - "index.qmd"
+    - "about.qmd"
+    - "keywords.qmd"
+    - "strategies.qmd"
   resources: 
     - shinylive-sw.js
     - keywords.csv
-    
+    - "description.Rmd"
+
 website:  
   repo-url: https://github.com/jhelvy/magaScreener
   repo-actions: [edit, issue]
@@ -16,6 +24,8 @@ website:
         file: index.qmd
       - text: "About"
         file: about.qmd
+      - text: "Keywords"
+        file: keywords.qmd
       - text: "Strategies"
         file: strategies.qmd
     right: 

@@ -5,35 +5,7 @@ format:
     page-layout: article
 ---
 
-This tool allows you to analyze documents for specific MAGA-targeted keywords. Upload a document, and the app will count words, characters, and occurrences of predetermined keywords.
+This tool allows you to analyze documents for specific MAGA-targeted keywords. It is intended to be used to help identify words that might get screened by the federal government, e.g. in a grant proposal for federal funding. Upload a document, and the app will count words, characters, and occurrences of predetermined keywords.
 
-### How It Works
-
-The analyzer extracts text from your document and searches for keywords from our predefined list. It then counts how many times each keyword appears in your document. That's all - it's pretty simple. 
-
-The underlying technology enabling this site is pretty cool though! It uses the [Quarto](https://quarto.org/) publishing system, the [R programming language](https://www.r-project.org/), and the [shiny](https://shiny.posit.co/) web application framework, leveraging [shinylive](https://quarto.org/docs/blog/posts/2022-10-25-shinylive-extension/) Quarto extension to run the whole thing in the browser as a static web page (thanks to [@coatless](https://github.com/coatless) for posting such a great [tutorial](https://github.com/coatless-quarto/r-shinylive-demo) on how to set this up). The site itself is hosted on GitHub pages, and the source code can be found [here](https://github.com/jhelvy/magaScreener).
-
-### Supported File Types
-
-- Word Documents: .docx, .doc
-- PDF Files: .pdf
-- Text Files: .txt
-- Spreadsheets: .csv, .xlsx
-- Web Documents: .html, .htm, .xml
-- Other: .rtf, .json
-
-### Keywords List
-
-The analyzer searches for the following keywords:
-
-```{r}
-#| results: asis
-#| echo: false
-
-keywords <- read.csv('keywords.csv', header = TRUE, stringsAsFactors = FALSE)
-DT::datatable(
-  keywords,
-  rownames = FALSE, 
-  options = list(pageLength = 50)  # Set default to display 50 rows
-)
+```{r child="description.Rmd"}
 ```

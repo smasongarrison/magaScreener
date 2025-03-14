@@ -1,0 +1,22 @@
+---
+title: "Keywords"
+format: 
+  html:
+    page-layout: article
+---
+
+The analyzer searches for the keywords below. 
+
+These are basesd on [Dr. Saxbe](https://bsky.app/profile/darbysaxbe.bsky.social/post/3lhcvn4hxwk2o)'s post on Bluesky and [this EO](https://www.whitehouse.gov/presidential-actions/2025/01/ending-radical-and-wasteful-government-dei-programs-and-preferencing/).
+
+```{r}
+#| results: asis
+#| echo: false
+
+keywords <- read.csv('keywords.csv', header = TRUE, stringsAsFactors = FALSE)
+DT::datatable(
+  keywords,
+  rownames = FALSE, 
+  options = list(pageLength = 50)  # Set default to display 50 rows
+)
+```

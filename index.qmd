@@ -8,7 +8,8 @@ filters:
 ---
 
 <center>
-(this can take a bit of time to load)
+This can take ~30s to load...just leave the window open until it loads<br>
+Also you don't have to restart it to upload another doc - it will just start over with each doc
 </center>
 
 ```{shinylive-r}
