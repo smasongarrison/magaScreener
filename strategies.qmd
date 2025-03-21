@@ -5,18 +5,17 @@ format:
     page-layout: article
 ---
 
-If you're frustrated / outraged by the need to censor your work, you should be. This is so, so profoundly stupid 🤦. It's also a violation of the [1st Amendment of the U.S. Constitution](https://constitution.congress.gov/browse/amendment-1/).
-
-But look, the incompetents running these screenings aren't doing it by hand - they're just running documents through automated keyword searchers, just like this app does. So until we have an administration that respects free speech, hopefully this tool can help you navigate working in this environment.
-
-Once you run your document through the screener and find your matching keywords, just change the targeted words. Here are some strategies:
+This app won't make your work completely MAGA-proof, but at least it should help you get past automated keyword searchers. Once you run your document through the screener and find your matching keywords, just change the targeted words. Here are some strategies:
 
 - **Use synonyms**: Replace potentially flagged words with their synonyms (e.g., "inclusive" → "welcoming"). 
 - **Add extra letters**: Insert additional letters in words that don't change pronunciation (e.g., "divverse").
 - **Use numbers**: Replace letters with numbers, e.g. "o" with "0", capital "I" with "1".
-- **Intentional misspellings**: Slightly misspell words while keeping them recognizable (e.g., "equaty" or "ĕquity" using accented characters instead of "equity"). 
+- **Intentional misspellings**: Slightly misspell words while keeping them recognizable (e.g., "equaty" instead of "equity").
 - **Add invisible characters**: Insert zero-width spaces or other invisible Unicode characters between letters. 
 - **Compound splitting**: Break terms into component parts with hyphens or spaces (e.g., "social-justice" → "social fairness").
 - **Use circumlocution**: Describe the concept rather than using the term directly.
 - **Homophone substitution**: Use words that sound the same but are spelled differently.
-- **Use metaphors**: Replace direct terms with metaphorical language that conveys similar meaning.
+- **Use metaphors**: Replace direct terms with metaphorical language that conveys similar meaning. (e.g., "leveling the playing field" instead of "equity").
+- **Add diacritics or accented characters**: Modify letters slightly while keeping them recognizable (e.g., "ĕquity" instead of "equity").
+- **Use homoglyphs**: Replace letters with visually similar characters from other alphabets (e.g., "а" → "a" from Cyrillic, "α" → "а" from Greek).
+- **Use indirect references**: Instead of explicitly naming frameworks, emphasize methodology or intended results (e.g., "improving participatory outcomes" instead of "democratizing institutions").

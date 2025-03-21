@@ -101,7 +101,7 @@ The analyzer searches for the following keywords:
 | assigned female at birth   |
 | assigned male at birth     |
 | assigned male              |
-| assigned remale            |
+| assigned female            |
 | at risk                    |
 | barrier                    |
 | barriers                   |
